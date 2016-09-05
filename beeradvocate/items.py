@@ -18,7 +18,15 @@ class BeerAdvocateItem(Item):
     abv = Field()
     rAvg = Field()
     pDev = Field()
+    wants = Field()
+    gots = Field()
     num_reviews = Field()
+    num_ratings = Field()
+    ba_score = Field()
+    ba_bro_score = Field()
+    notes = Field()
+    ibu = Field()
+
     timestamp = Field()
 
     def get_url(self):

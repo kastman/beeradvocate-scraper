@@ -2,36 +2,36 @@
 # encoding=utf-8
 import re
 
-from scrapy.spider import BaseSpider
+import logging
+from scrapy.spiders import Spider
 from scrapy.http import Request
 from scrapy.selector import HtmlXPathSelector
-from scrapy import log
 
 from beeradvocate.settings import BASE_URL
 from beeradvocate.spiders.mixins import BeerDetailPageParserMixin
 
 
-class BeerAdvocateSpider(BaseSpider, BeerDetailPageParserMixin):
+class BeerAdvocateSpider(Spider, BeerDetailPageParserMixin):
     name = "beeradvocate"
     allowed_domains = ["beeradvocate.com", "www.beeradvocate.com"]
     start_urls = [
-        "http://beeradvocate.com/beer/style"
+        "https://www.beeradvocate.com/beer/style"
     ]
 
     def parse(self, response):
         return self.parse_beer_styles(response)
 
     def parse_beer_styles(self, response):
-        self.log("Got beer style list.", level=log.INFO)
+        logging.log(logging.INFO, "Got beer style list.")
         hxs = HtmlXPathSelector(response)
         style_columns = hxs.select('//*[@id="baContent"]/table/tr[1]/td')
         if not style_columns:
-            self.log("Failed to get styles", level=log.ERROR)
+            logging.log(logging.ERROR, "Failed to get styles")
             return
         for column in style_columns:
             beers = column.select('table/tr[2]')
             if not beers:
-                self.log("Failed to find beers field", level=log.ERROR)
+                logging.log(logging.ERROR, "Failed to find beers field")
             for match in re.finditer(
                     r'href="(/beer/style/\d+)">([^<]+)', beers.extract()[0]):
                 yield Request(url=BASE_URL + match.groups()[0],
@@ -47,7 +47,7 @@ class BeerAdvocateSpider(BaseSpider, BeerDetailPageParserMixin):
                 row.select('td').extract()[1:]
 
     def parse_beer_list(self, response):
-        self.log("Got beer list for %s" % response.url)
+        logging.log(logging.INFO, "Got beer list for %s" % response.url)
         hxs = HtmlXPathSelector(response)
         beer_list_table = hxs.select('//*[@id="baContent"]/table[2]')
         nav_links = beer_list_table.select('tr[2]/td/a').extract()[::-1]

@@ -1,17 +1,17 @@
 from datetime import datetime
 from decimal import Decimal
+import logging
 import re
 
-from scrapy.selector import HtmlXPathSelector
-from scrapy import log
+from scrapy.selector import Selector
 
 from beeradvocate.items import BeerAdvocateItem
 
 
 class BeerDetailPageParserMixin(object):
     def parse_beer_detail(self, response):
-        self.log("Got beer detail for %s" % response.url, level=log.INFO)
-        hxs = HtmlXPathSelector(response)
+        logging.info("Got beer detail for %s" % response.url)
+        hxs = Selector(response)
         item = BeerAdvocateItem()
 
         ids = re.findall(r'profile/(?P<brewery_id>\d+)/(?P<beer_id>\d+)',
@@ -19,19 +19,18 @@ class BeerDetailPageParserMixin(object):
         item['brewery_id'] = ids[0]
         item['beer_id'] = ids[1]
 
-        beer_name = hxs.select(
-            '//*[@id="content"]/div/div/div/div/div[2]/h1/text()').extract()[0]
+
+        beer_name = hxs.xpath(
+            '//*[@id="content"]//h1/text()').extract()[0]
         item['name'] = beer_name
 
-        details = hxs.select(
-            '//*[@id="baContent"]/table[1]/tr/td[2]/table/tr[2]/td').\
-            extract()[0]
+        details = hxs.xpath('//*[@id="ba-content"]/div[4]').extract()[0]
         brewery = re.findall(
-            r'href="/beer/profile/%s"><b>([^<]+)' % item['brewery_id'],
+            r'href="/beer/profile/%s/?"><b>([^<]+)' % item['brewery_id'],
             details)[0]
         item['brewery'] = brewery
         style = re.findall(
-            r'href="/beer/style/(\d+)"><b>([^<]+)',
+            r'href="/beer/style/(\d+)/?"><b>([^<]+)',
             details)[0]
         item['style_id'] = style[0]
         item['style'] = style[1]

@@ -14,5 +14,7 @@ LOG_FILE = 'beeradvocate.log'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'beeradvocate (+http://www.yourdomain.com)'
+ROBOTSTXT_OBEY = True
+BASE_URL = 'https://www.beeradvocate.com'
 
-BASE_URL = 'http://beeradvocate.com'
+AUTOTHROTTLE_ENABLED = True

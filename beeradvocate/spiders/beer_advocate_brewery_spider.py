@@ -32,13 +32,6 @@ class BeerAdvocateBrewerySpider(Spider, BeerDetailPageParserMixin):
         hxs = Selector(response)
         brewery_table = hxs.xpath('//*[@id="ba-content"]/table')
 
-        nav_links = brewery_table.xpath('tr[2]/td/a')
-        next_url = None
-        for link in nav_links:
-            if link.xpath('b[contains(text(), "next")]'):
-                next_url = BASE_URL + link.xpath('@href').extract()[0]
-                break
-
         breweries = brewery_table.xpath(
             'tr/td/a[contains(@href, "/beer/profile")]')
         for brewery in breweries:
@@ -46,7 +39,9 @@ class BeerAdvocateBrewerySpider(Spider, BeerDetailPageParserMixin):
             url += "?view=beers&show=all"
             yield Request(url=url, callback=self.parse_beer_list)
 
-        if next_url:
+        next_links = brewery_table.xpath('.//a[text()="next"]/@href')
+        if len(next_links):
+            next_url = BASE_URL + next_links[0].extract()
             yield Request(url=next_url, callback=self.parse_country_details)
 
     def parse_beer_list(self, response):

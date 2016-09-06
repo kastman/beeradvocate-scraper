@@ -26,6 +26,7 @@ class BeerAdvocateItem(Item):
     ba_bro_score = Field()
     notes = Field()
     ibu = Field()
+    availability = Field()
 
     timestamp = Field()
 

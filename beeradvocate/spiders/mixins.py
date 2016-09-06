@@ -39,21 +39,18 @@ class BeerDetailPageParserMixin(object):
             r'Commercial Description:.*\n.*\n([\s\S]+)<br><br>Added',
             details)[0].strip()
 
+        availability = re.findall(r'Availability:</b>([^<]+)', details)[0].strip()
+
         ibu_match = re.findall(r'(\d+) IBU', details, flags=re.IGNORECASE)
         if ibu_match:
-            ibu = Decimal(ibu_match.groups()[0])
+            ibu = Decimal(ibu_match[0])
         else:
             ibu = None
-
-        item['notes'] = notes
-        item['ibu'] = ibu
 
         ba_score = hxs.xpath(
             '//*[contains(@class, "ba-score")]/text()').extract()[0]
         ba_bro_score = hxs.xpath(
             '//*[contains(@class, "ba-bro_score")]/text()').extract()[0]
-        item['ba_score'] = ba_score
-        item['ba_bro_score'] = ba_bro_score
 
         num_reviews = hxs.xpath(
             '//*[contains(@class, "ba-reviews")]/text()').extract()[0]
@@ -74,6 +71,12 @@ class BeerDetailPageParserMixin(object):
         item['num_ratings'] = int(num_ratings.strip())
         item['wants'] = int(wants.strip())
         item['gots'] = int(gots.strip())
+        item['notes'] = notes
+        item['ibu'] = ibu
+        item['ba_score'] = ba_score
+        item['ba_bro_score'] = ba_bro_score
+        item['availability'] = availability
+
 
         item['timestamp'] = datetime.utcnow()
 

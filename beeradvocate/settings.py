@@ -18,3 +18,4 @@ ROBOTSTXT_OBEY = True
 BASE_URL = 'https://www.beeradvocate.com'
 
 AUTOTHROTTLE_ENABLED = True
+TELNETCONSOLE_ENABLED = False
